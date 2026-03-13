@@ -1,0 +1,1262 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="PerfectTrade">
+<meta name="theme-color" content="#090d14">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="description" content="Multi-timeframe confluence trading checklist with dashboard, calendar & journal">
+<link rel="manifest" href="manifest.json">
+<link rel="apple-touch-icon" href="icons/icon-192.png">
+<title>Perfect Trade</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Mono:wght@300;400;500&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,400&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #090d14;
+  --surface: #0e1420;
+  --surface2: #131b28;
+  --surface3: #1a2336;
+  --border: #1e2d45;
+  --border2: #243450;
+  --accent: #00e5a0;
+  --accent2: #00b87a;
+  --accent-glow: rgba(0,229,160,0.13);
+  --red: #ff4d6a;
+  --red-glow: rgba(255,77,106,0.13);
+  --yellow: #f5c842;
+  --yellow-glow: rgba(245,200,66,0.13);
+  --blue: #4d9fff;
+  --text: #e8edf5;
+  --text2: #8a96aa;
+  --text3: #3f4f65;
+  --font-display: 'Syne', sans-serif;
+  --font-mono: 'DM Mono', monospace;
+  --font-body: 'DM Sans', sans-serif;
+  --nav-h: 68px;
+  --top-h: 56px;
+  --safe-top: env(safe-area-inset-top, 0px);
+  --safe-bot: env(safe-area-inset-bottom, 0px);
+}
+
+*, *::before, *::after { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
+
+html, body {
+  height: 100%;
+  overflow: hidden;
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--font-body);
+  -webkit-font-smoothing: antialiased;
+}
+
+/* ── BACKGROUND GLOW ── */
+body::before {
+  content:'';
+  position:fixed; inset:0;
+  background:
+    radial-gradient(ellipse 70% 40% at 15% 5%, rgba(0,229,160,0.05) 0%, transparent 60%),
+    radial-gradient(ellipse 50% 35% at 85% 85%, rgba(77,159,255,0.03) 0%, transparent 60%);
+  pointer-events:none; z-index:0;
+}
+
+/* ── TOP BAR ── */
+#topbar {
+  position: fixed;
+  top: 0; left: 0; right: 0;
+  height: calc(var(--top-h) + var(--safe-top));
+  padding-top: var(--safe-top);
+  background: rgba(9,13,20,0.95);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-left: 20px;
+  padding-right: 20px;
+  z-index: 200;
+}
+
+.topbar-logo {
+  font-family: var(--font-display);
+  font-weight: 800;
+  font-size: 17px;
+  letter-spacing: 0.01em;
+}
+.topbar-logo span { color: var(--accent); }
+
+.topbar-right { display: flex; align-items: center; gap: 10px; }
+
+.topbar-badge {
+  background: var(--accent-glow);
+  border: 1px solid rgba(0,229,160,0.3);
+  color: var(--accent);
+  font-family: var(--font-mono);
+  font-size: 10px;
+  font-weight: 500;
+  padding: 4px 10px;
+  border-radius: 20px;
+  letter-spacing: 0.06em;
+}
+
+.topbar-icon-btn {
+  width: 36px; height: 36px;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  background: var(--surface2);
+  display: flex; align-items: center; justify-content: center;
+  cursor: pointer; font-size: 16px;
+  transition: border-color 0.2s;
+  color: var(--text2);
+}
+.topbar-icon-btn:active { background: var(--surface3); }
+
+/* ── SCROLL AREA ── */
+#scroll-area {
+  position: fixed;
+  top: calc(var(--top-h) + var(--safe-top));
+  left: 0; right: 0;
+  bottom: calc(var(--nav-h) + var(--safe-bot));
+  overflow-y: auto;
+  overflow-x: hidden;
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior: contain;
+  z-index: 1;
+}
+
+/* ── BOTTOM NAV ── */
+#bottom-nav {
+  position: fixed;
+  bottom: 0; left: 0; right: 0;
+  height: calc(var(--nav-h) + var(--safe-bot));
+  padding-bottom: var(--safe-bot);
+  background: rgba(9,13,20,0.97);
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
+  border-top: 1px solid var(--border);
+  display: flex;
+  align-items: stretch;
+  z-index: 200;
+}
+
+.nav-item {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  cursor: pointer;
+  padding: 8px 0;
+  transition: all 0.2s;
+  position: relative;
+  border: none;
+  background: none;
+  color: var(--text3);
+  -webkit-tap-highlight-color: transparent;
+}
+
+.nav-item.active { color: var(--accent); }
+
+.nav-item::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 20%; right: 20%;
+  height: 2px;
+  border-radius: 0 0 2px 2px;
+  background: var(--accent);
+  opacity: 0;
+  transition: opacity 0.2s;
+}
+.nav-item.active::before { opacity: 1; }
+
+.nav-icon {
+  font-size: 20px;
+  line-height: 1;
+  transition: transform 0.2s;
+}
+.nav-item.active .nav-icon { transform: scale(1.1); }
+
+.nav-label {
+  font-size: 10px;
+  font-family: var(--font-mono);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  font-weight: 500;
+}
+
+/* ── PAGES ── */
+.page { display: none; padding: 16px 16px 24px; min-height: 100%; }
+.page.active { display: block; animation: slideUp 0.28s ease; }
+@keyframes slideUp { from { opacity:0; transform:translateY(12px); } to { opacity:1; transform:translateY(0); } }
+
+/* ── SECTION HEADER ── */
+.page-header { margin-bottom: 20px; padding-top: 4px; }
+.page-title { font-family: var(--font-display); font-size: 26px; font-weight: 800; line-height: 1; }
+.page-title span { color: var(--accent); }
+.page-sub { color: var(--text3); font-size: 11px; font-family: var(--font-mono); margin-top: 5px; letter-spacing: 0.04em; }
+
+/* ── TRADE META CARD ── */
+.meta-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  padding: 16px;
+  margin-bottom: 12px;
+}
+
+.meta-row { display: flex; gap: 10px; margin-bottom: 12px; flex-wrap: wrap; }
+
+.meta-field { display: flex; flex-direction: column; gap: 5px; flex: 1; min-width: 80px; }
+.meta-label {
+  font-size: 9px; font-weight: 600; letter-spacing: 0.12em; color: var(--text3);
+  text-transform: uppercase; font-family: var(--font-mono);
+}
+.meta-input {
+  background: var(--surface2); border: 1px solid var(--border); border-radius: 8px;
+  padding: 9px 12px; color: var(--text); font-family: var(--font-mono); font-size: 14px;
+  font-weight: 500; outline: none; transition: border-color 0.2s; width: 100%;
+  -webkit-appearance: none;
+}
+.meta-input:focus { border-color: var(--accent); }
+
+.dir-row { display: flex; gap: 8px; }
+.dir-btn {
+  flex: 1; padding: 10px; border-radius: 10px; border: 1px solid var(--border);
+  background: transparent; color: var(--text2); font-size: 13px; font-weight: 700;
+  cursor: pointer; transition: all 0.2s; font-family: var(--font-display); letter-spacing: 0.06em;
+}
+.dir-btn.long.active { background: var(--accent-glow); border-color: var(--accent); color: var(--accent); }
+.dir-btn.short.active { background: var(--red-glow); border-color: var(--red); color: var(--red); }
+
+/* ── TF SECTIONS ── */
+.tf-section {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  margin-bottom: 12px;
+  overflow: hidden;
+  transition: border-color 0.2s;
+}
+
+.tf-header {
+  padding: 14px 16px;
+  display: flex; align-items: center; justify-content: space-between;
+  cursor: pointer; user-select: none;
+  background: var(--surface2);
+  border-bottom: 1px solid var(--border);
+  -webkit-tap-highlight-color: transparent;
+}
+
+.tf-left { display: flex; align-items: center; gap: 10px; }
+.tf-badge { font-family: var(--font-display); font-weight: 800; font-size: 13px; letter-spacing: 0.06em; }
+.tf-conf { font-family: var(--font-mono); font-size: 10px; color: var(--text3); }
+
+.tf-right { display: flex; align-items: center; gap: 10px; }
+.tf-score { font-family: var(--font-mono); font-size: 18px; font-weight: 500; transition: color 0.3s; }
+.tf-chevron { color: var(--text3); font-size: 11px; transition: transform 0.25s; }
+.tf-header.open .tf-chevron { transform: rotate(180deg); }
+
+.tf-body { }
+.tf-body.collapsed { display: none; }
+
+/* ── CHECK ITEMS ── */
+.check-item {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 14px 16px;
+  cursor: pointer; transition: background 0.15s;
+  -webkit-tap-highlight-color: transparent;
+  user-select: none;
+}
+.check-item:active { background: rgba(255,255,255,0.03); }
+
+.check-left { display: flex; align-items: center; gap: 12px; flex: 1; }
+
+.check-box {
+  width: 22px; height: 22px; border-radius: 6px;
+  border: 1.5px solid var(--border2); background: transparent;
+  display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0; transition: all 0.2s;
+}
+.check-box svg { opacity: 0; transition: opacity 0.2s; transform: scale(0.8); transition: all 0.2s; }
+.check-item.checked .check-box { background: var(--accent); border-color: var(--accent); }
+.check-item.checked .check-box svg { opacity: 1; transform: scale(1); }
+
+.check-name { font-size: 14px; font-weight: 500; transition: color 0.2s; line-height: 1.3; }
+.check-desc { font-size: 11px; color: var(--text3); font-family: var(--font-mono); margin-top: 2px; }
+.check-item.checked .check-name { color: var(--text3); }
+
+.check-weight {
+  font-family: var(--font-mono); font-size: 11px; color: var(--text3);
+  padding: 3px 9px; background: var(--surface3); border-radius: 20px;
+  border: 1px solid var(--border); white-space: nowrap; margin-left: 8px; flex-shrink: 0;
+  transition: all 0.2s;
+}
+.check-item.checked .check-weight { color: var(--accent); border-color: rgba(0,229,160,0.25); background: var(--accent-glow); }
+
+.divider { height: 1px; background: var(--border); margin: 0 16px; }
+
+/* ── SIDEBAR / SCORE AREA ── */
+.score-strip {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  padding: 20px 16px;
+  margin-bottom: 12px;
+  position: relative;
+  overflow: hidden;
+}
+.score-strip::before {
+  content:''; position:absolute; inset:0;
+  background: radial-gradient(circle at 50% 0%, rgba(0,229,160,0.05), transparent 60%);
+  pointer-events:none;
+}
+
+.arc-row { display: flex; align-items: center; gap: 16px; }
+.arc-wrap { position:relative; width:100px; height:100px; flex-shrink:0; }
+.arc-wrap svg { transform: rotate(-90deg); }
+.arc-bg { fill:none; stroke:var(--surface3); stroke-width:9; }
+.arc-fill { fill:none; stroke-width:9; stroke-linecap:round; transition: stroke-dashoffset 0.5s cubic-bezier(0.4,0,0.2,1), stroke 0.4s; }
+.arc-center { position:absolute; inset:0; display:flex; flex-direction:column; align-items:center; justify-content:center; }
+.arc-pct { font-family:var(--font-display); font-size:22px; font-weight:800; transition:color 0.4s; }
+.arc-sub { font-size:9px; color:var(--text3); font-family:var(--font-mono); letter-spacing:0.1em; margin-top:1px; }
+
+.arc-info { flex:1; }
+.arc-grade { font-family:var(--font-display); font-size:15px; font-weight:700; margin-bottom:10px; }
+
+.conf-bar-wrap { background:var(--surface3); border-radius:4px; height:6px; overflow:hidden; margin-bottom:6px; }
+.conf-bar-fill { height:100%; border-radius:4px; transition: width 0.5s ease, background 0.4s; }
+.conf-bar-labels { display:flex; justify-content:space-between; font-size:9px; color:var(--text3); font-family:var(--font-mono); }
+
+/* ── TF TILES ── */
+.tf-tiles { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 12px; }
+.tf-tile {
+  background: var(--surface); border: 1px solid var(--border); border-radius: 12px;
+  padding: 12px 14px; text-align: center;
+}
+.tf-tile-label { font-size: 9px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--text3); font-family: var(--font-mono); margin-bottom: 5px; }
+.tf-tile-val { font-family: var(--font-mono); font-size: 20px; font-weight: 500; transition: color 0.3s; }
+.tf-tile.full { grid-column: 1 / -1; }
+
+/* ── ACTION BTNs ── */
+.save-btn {
+  width: 100%; padding: 15px; background: var(--accent); color: var(--bg);
+  border: none; border-radius: 12px; font-family: var(--font-display); font-weight: 800;
+  font-size: 15px; letter-spacing: 0.04em; cursor: pointer; transition: all 0.2s;
+  display: flex; align-items: center; justify-content: center; gap: 8px;
+  margin-bottom: 10px;
+}
+.save-btn:active { transform: scale(0.98); background: #00ffb3; }
+
+.reset-btn {
+  width: 100%; padding: 11px; background: transparent; color: var(--text3);
+  border: 1px solid var(--border); border-radius: 12px; font-family: var(--font-mono);
+  font-size: 12px; cursor: pointer; transition: all 0.2s; margin-bottom: 24px;
+}
+.reset-btn:active { color: var(--red); border-color: var(--red); background: var(--red-glow); }
+
+/* ── SCORE COLORS ── */
+.sc-weak  { color: var(--red) !important; }
+.sc-avg   { color: var(--yellow) !important; }
+.sc-good  { color: var(--accent) !important; }
+.sc-strong{ color: #00ffb3 !important; }
+
+/* ── DASHBOARD ── */
+.kpi-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 16px; }
+.kpi-card {
+  background: var(--surface); border: 1px solid var(--border); border-radius: 14px;
+  padding: 16px; position: relative; overflow: hidden;
+}
+.kpi-card.full { grid-column: 1/-1; }
+.kpi-accent-bg { position:absolute; top:0; right:0; width:60px; height:60px; border-radius:0 0 0 60px; opacity:0.07; }
+.kpi-label { font-size: 9px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--text3); font-family: var(--font-mono); margin-bottom: 6px; }
+.kpi-val { font-family: var(--font-display); font-size: 28px; font-weight: 800; line-height: 1; }
+.kpi-sub { font-size: 10px; color: var(--text3); font-family: var(--font-mono); margin-top: 4px; }
+
+.dash-card {
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: 16px; padding: 16px; margin-bottom: 12px;
+}
+.dash-card-title {
+  font-family: var(--font-display); font-weight: 700; font-size: 14px;
+  margin-bottom: 14px; display: flex; justify-content: space-between; align-items: center;
+}
+.dash-tag { font-size: 10px; font-family: var(--font-mono); color: var(--text3); font-weight: 400; }
+
+.win-pills { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; margin-top: 14px; }
+.win-pill {
+  text-align: center; padding: 10px 6px; background: var(--surface2);
+  border-radius: 10px; border: 1px solid var(--border);
+}
+.win-pill-label { font-size: 9px; text-transform: uppercase; letter-spacing: 0.08em; color: var(--text3); font-family: var(--font-mono); margin-bottom: 4px; }
+.win-pill-val { font-family: var(--font-mono); font-size: 20px; font-weight: 500; }
+
+/* DONUT */
+.donut-wrap { position:relative; width:90px; height:90px; margin:0 auto 10px; }
+.donut-wrap svg { transform: rotate(-90deg); }
+.donut-bg { fill:none; stroke:var(--surface3); stroke-width:11; }
+.donut-fill { fill:none; stroke-width:11; stroke-linecap:round; transition: stroke-dashoffset 0.7s ease; }
+.donut-text { position:absolute; inset:0; display:flex; flex-direction:column; align-items:center; justify-content:center; }
+.donut-pct { font-family:var(--font-display); font-weight:800; font-size:19px; }
+.donut-sub { font-size:9px; color:var(--text3); font-family:var(--font-mono); }
+
+/* TRADES TABLE */
+.trades-table { width:100%; border-collapse:collapse; }
+.trades-table th {
+  text-align:left; font-size:9px; letter-spacing:0.1em; text-transform:uppercase;
+  color:var(--text3); font-family:var(--font-mono); padding:0 0 10px; font-weight:400;
+  border-bottom:1px solid var(--border);
+}
+.trades-table td { padding:11px 0; font-size:13px; border-bottom:1px solid rgba(30,45,69,0.5); }
+.trades-table tr:last-child td { border-bottom:none; }
+.t-pair { font-family:var(--font-mono); font-weight:500; }
+.t-long { color:var(--accent); font-size:10px; font-weight:700; font-family:var(--font-mono); }
+.t-short { color:var(--red); font-size:10px; font-weight:700; font-family:var(--font-mono); }
+.t-score { font-family:var(--font-mono); font-size:11px; padding:2px 7px; border-radius:4px; background:var(--surface3); }
+.t-win { color:var(--accent); font-family:var(--font-mono); font-size:12px; font-weight:500; }
+.t-loss { color:var(--red); font-family:var(--font-mono); font-size:12px; font-weight:500; }
+.t-date { color:var(--text3); font-family:var(--font-mono); font-size:11px; }
+
+/* BAR CHART */
+.bar-chart { display:flex; align-items:flex-end; gap:6px; height:80px; padding-bottom:2px; }
+.bar-col { flex:1; display:flex; flex-direction:column; align-items:center; gap:3px; }
+.bar-col-bar { width:100%; border-radius:4px 4px 0 0; min-height:4px; transition:height 0.5s ease; }
+.bar-col-lbl { font-size:9px; color:var(--text3); font-family:var(--font-mono); }
+.bar-col-val { font-size:9px; color:var(--text2); font-family:var(--font-mono); }
+
+/* ── CALENDAR ── */
+.cal-header { display:flex; align-items:center; justify-content:space-between; margin-bottom:14px; }
+.cal-title { font-family:var(--font-display); font-size:20px; font-weight:800; }
+.cal-navs { display:flex; gap:8px; }
+.cal-nav-btn {
+  width:34px; height:34px; background:var(--surface2); border:1px solid var(--border);
+  border-radius:9px; color:var(--text2); cursor:pointer; display:flex; align-items:center;
+  justify-content:center; font-size:15px; transition:all 0.2s;
+}
+.cal-nav-btn:active { border-color:var(--accent); color:var(--accent); }
+
+.cal-grid { background:var(--surface); border:1px solid var(--border); border-radius:16px; overflow:hidden; margin-bottom:14px; }
+.cal-days-header { display:grid; grid-template-columns:repeat(7,1fr); background:var(--surface2); border-bottom:1px solid var(--border); }
+.cal-day-name { padding:9px 4px; text-align:center; font-size:10px; letter-spacing:0.06em; text-transform:uppercase; color:var(--text3); font-family:var(--font-mono); }
+.cal-cells { display:grid; grid-template-columns:repeat(7,1fr); }
+.cal-cell {
+  min-height:56px; padding:6px 4px; border-right:1px solid var(--border); border-bottom:1px solid var(--border);
+  cursor:pointer; transition:background 0.15s; position:relative;
+}
+.cal-cell:active { background: rgba(255,255,255,0.03); }
+.cal-cell:nth-child(7n) { border-right:none; }
+.cal-cell.other-month .cal-date-num { color:var(--text3); }
+.cal-cell.today { background:rgba(0,229,160,0.04); }
+.cal-cell.today .cal-date-num { color:var(--accent); font-weight:700; }
+.cal-cell.selected { background:rgba(0,229,160,0.07); }
+.cal-date-num { font-family:var(--font-mono); font-size:12px; color:var(--text2); margin-bottom:3px; }
+.cal-dots { display:flex; flex-wrap:wrap; gap:2px; margin-top:3px; }
+.cal-dot { width:5px; height:5px; border-radius:50%; }
+.cal-dot.win { background:var(--accent); }
+.cal-dot.loss { background:var(--red); }
+.cal-dot.be { background:var(--yellow); }
+
+.cal-detail {
+  background: var(--surface); border: 1px solid var(--border); border-radius: 16px; padding: 16px;
+  margin-bottom: 24px;
+}
+.cal-detail-date { font-family:var(--font-display); font-size:16px; font-weight:700; margin-bottom:3px; }
+.cal-detail-sub { color:var(--text3); font-size:11px; font-family:var(--font-mono); margin-bottom:14px; }
+.cal-trade-item { background:var(--surface2); border:1px solid var(--border); border-radius:10px; padding:12px; margin-bottom:8px; }
+.cal-trade-top { display:flex; justify-content:space-between; align-items:center; margin-bottom:5px; }
+.cal-trade-pair { font-family:var(--font-mono); font-size:14px; font-weight:500; }
+.cal-trade-meta { display:flex; justify-content:space-between; font-size:11px; color:var(--text3); font-family:var(--font-mono); }
+
+/* ── JOURNAL ── */
+.journal-form-card { background:var(--surface); border:1px solid var(--border); border-radius:16px; padding:16px; margin-bottom:14px; }
+.journal-form-title { font-family:var(--font-display); font-size:15px; font-weight:700; margin-bottom:14px; }
+.form-row { display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-bottom:10px; }
+.form-group { margin-bottom:10px; }
+.form-label { display:block; font-size:9px; text-transform:uppercase; letter-spacing:0.1em; color:var(--text3); font-family:var(--font-mono); margin-bottom:5px; }
+.form-input, .form-textarea, .form-select {
+  width:100%; background:var(--surface2); border:1px solid var(--border); border-radius:8px;
+  padding:10px 12px; color:var(--text); font-family:var(--font-mono); font-size:13px;
+  outline:none; transition:border-color 0.2s; -webkit-appearance:none;
+}
+.form-input:focus, .form-textarea:focus { border-color:var(--accent); }
+.form-textarea { resize:vertical; min-height:70px; line-height:1.5; }
+.form-select option { background:var(--surface2); }
+
+.outcome-btns { display:flex; gap:8px; }
+.outcome-btn {
+  flex:1; padding:9px 4px; border-radius:8px; border:1px solid var(--border);
+  background:transparent; cursor:pointer; font-family:var(--font-mono); font-size:12px;
+  font-weight:500; transition:all 0.2s; color:var(--text3);
+}
+.outcome-btn.win-btn.active { background:var(--accent-glow); border-color:var(--accent); color:var(--accent); }
+.outcome-btn.loss-btn.active { background:var(--red-glow); border-color:var(--red); color:var(--red); }
+.outcome-btn.be-btn.active { background:var(--yellow-glow); border-color:var(--yellow); color:var(--yellow); }
+
+.add-btn {
+  width:100%; padding:13px; background:var(--accent); color:var(--bg); border:none;
+  border-radius:10px; font-family:var(--font-display); font-weight:700; font-size:14px;
+  cursor:pointer; transition:all 0.2s; margin-top:4px;
+}
+.add-btn:active { transform:scale(0.98); background:#00ffb3; }
+
+.journal-entry {
+  background:var(--surface); border:1px solid var(--border); border-radius:14px; padding:14px 16px;
+  margin-bottom:10px; position:relative; overflow:hidden; cursor:pointer;
+  transition: transform 0.2s;
+}
+.journal-entry:active { transform: scale(0.99); }
+.journal-entry::before { content:''; position:absolute; left:0; top:0; bottom:0; width:3px; border-radius:3px 0 0 3px; }
+.journal-entry.win::before { background:var(--accent); }
+.journal-entry.loss::before { background:var(--red); }
+.journal-entry.be::before { background:var(--yellow); }
+
+.j-top { display:flex; justify-content:space-between; align-items:center; margin-bottom:10px; }
+.j-pair { font-family:var(--font-mono); font-size:15px; font-weight:500; }
+.j-outcome { font-family:var(--font-mono); font-size:12px; font-weight:700; }
+.j-stats { display:flex; gap:16px; margin-bottom:10px; }
+.j-stat-label { font-size:9px; text-transform:uppercase; letter-spacing:0.08em; color:var(--text3); font-family:var(--font-mono); margin-bottom:2px; }
+.j-stat-val { font-family:var(--font-mono); font-size:13px; font-weight:500; }
+.j-note { font-size:12px; color:var(--text2); line-height:1.5; border-top:1px solid var(--border); padding-top:10px; font-style:italic; }
+.j-date { font-size:10px; color:var(--text3); font-family:var(--font-mono); }
+
+/* ── INSTALL BANNER ── */
+#installBanner {
+  position:fixed; bottom:calc(var(--nav-h) + var(--safe-bot) + 12px); left:16px; right:16px;
+  background:var(--surface2); border:1px solid rgba(0,229,160,0.3); border-radius:14px;
+  padding:14px 16px; display:none; align-items:center; justify-content:space-between;
+  gap:12px; z-index:300; backdrop-filter:blur(20px);
+  box-shadow:0 8px 32px rgba(0,0,0,0.4);
+  animation: slideUp 0.3s ease;
+}
+#installBanner.show { display:flex; }
+.install-text { flex:1; }
+.install-title { font-family:var(--font-display); font-size:13px; font-weight:700; margin-bottom:2px; }
+.install-sub { font-size:11px; color:var(--text2); font-family:var(--font-mono); }
+.install-btn { background:var(--accent); color:var(--bg); border:none; border-radius:8px; padding:8px 16px; font-family:var(--font-display); font-weight:700; font-size:13px; cursor:pointer; white-space:nowrap; }
+.install-btn:active { background:#00ffb3; }
+.install-close { width:28px; height:28px; background:transparent; border:none; color:var(--text3); font-size:18px; cursor:pointer; display:flex; align-items:center; justify-content:center; flex-shrink:0; }
+
+/* ── TOAST ── */
+#toast {
+  position: fixed; top: calc(var(--top-h) + var(--safe-top) + 12px);
+  left:50%; transform:translateX(-50%) translateY(-10px);
+  background:var(--surface3); border:1px solid var(--border2); border-radius:10px;
+  padding:10px 20px; font-family:var(--font-mono); font-size:12px; color:var(--text);
+  z-index:400; opacity:0; transition: all 0.3s; pointer-events:none; white-space:nowrap;
+}
+#toast.show { opacity:1; transform:translateX(-50%) translateY(0); }
+
+/* ── MISC ── */
+.empty-state { text-align:center; padding:40px 20px; color:var(--text3); font-size:12px; font-family:var(--font-mono); line-height:1.8; }
+.must-badge { color:var(--red); font-family:var(--font-mono); font-size:11px; padding:3px 9px; background:var(--red-glow); border-radius:20px; border:1px solid rgba(255,77,106,0.25); flex-shrink:0; margin-left:8px; }
+
+/* scrollbar */
+::-webkit-scrollbar { width:4px; }
+::-webkit-scrollbar-track { background:transparent; }
+::-webkit-scrollbar-thumb { background:var(--border2); border-radius:2px; }
+</style>
+</head>
+<body>
+
+<!-- TOP BAR -->
+<div id="topbar">
+  <div class="topbar-logo">PERFECT<span>.</span>TRADE</div>
+  <div class="topbar-right">
+    <div class="topbar-badge" id="topBadge">0%</div>
+    <button class="topbar-icon-btn" onclick="resetChecklist()" title="Reset">↺</button>
+  </div>
+</div>
+
+<!-- SCROLL AREA -->
+<div id="scroll-area">
+
+  <!-- ══════════════ CHECKLIST PAGE ══════════════ -->
+  <div id="page-checklist" class="page active">
+    <div class="page-header">
+      <div class="page-title">Trade <span>Checklist</span></div>
+      <div class="page-sub">Multi-timeframe confluence scorer</div>
+    </div>
+
+    <!-- TRADE META -->
+    <div class="meta-card">
+      <div class="meta-row">
+        <div class="meta-field">
+          <div class="meta-label">Pair</div>
+          <input class="meta-input" id="tradePair" placeholder="EUR/USD" type="text" autocomplete="off" autocapitalize="characters">
+        </div>
+        <div class="meta-field">
+          <div class="meta-label">Entry</div>
+          <input class="meta-input" id="entryPrice" placeholder="1.08420" type="text" inputmode="decimal">
+        </div>
+      </div>
+      <div class="meta-row">
+        <div class="meta-field">
+          <div class="meta-label">Stop Loss</div>
+          <input class="meta-input" id="slPrice" placeholder="1.08100" type="text" inputmode="decimal">
+        </div>
+        <div class="meta-field">
+          <div class="meta-label">Take Profit</div>
+          <input class="meta-input" id="tpPrice" placeholder="1.09200" type="text" inputmode="decimal">
+        </div>
+      </div>
+      <div>
+        <div class="meta-label" style="margin-bottom:6px;">Direction</div>
+        <div class="dir-row">
+          <button class="dir-btn long" onclick="setDir('LONG',this)">▲ LONG</button>
+          <button class="dir-btn short" onclick="setDir('SHORT',this)">▼ SHORT</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- SCORE STRIP -->
+    <div class="score-strip">
+      <div class="arc-row">
+        <div class="arc-wrap">
+          <svg viewBox="0 0 100 100" width="100" height="100">
+            <circle class="arc-bg" cx="50" cy="50" r="40"/>
+            <circle class="arc-fill" id="arcFill" cx="50" cy="50" r="40"
+              stroke="#ff4d6a" stroke-dasharray="251.33" stroke-dashoffset="251.33"/>
+          </svg>
+          <div class="arc-center">
+            <div class="arc-pct sc-weak" id="totalPct">0%</div>
+            <div class="arc-sub">SCORE</div>
+          </div>
+        </div>
+        <div class="arc-info">
+          <div class="arc-grade sc-weak" id="tradeGrade">Weak Setup</div>
+          <div class="conf-bar-wrap"><div class="conf-bar-fill" id="confBar" style="width:0%;background:var(--red);"></div></div>
+          <div class="conf-bar-labels"><span>Weak</span><span>Avg</span><span>Good</span><span>Strong</span></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- TF TILES -->
+    <div class="tf-tiles">
+      <div class="tf-tile"><div class="tf-tile-label">Weekly</div><div class="tf-tile-val sc-weak" id="tile-weekly">0%</div></div>
+      <div class="tf-tile"><div class="tf-tile-label">Daily</div><div class="tf-tile-val sc-weak" id="tile-daily">0%</div></div>
+      <div class="tf-tile"><div class="tf-tile-label">4H</div><div class="tf-tile-val sc-weak" id="tile-4h">0%</div></div>
+      <div class="tf-tile"><div class="tf-tile-label">2H-30m</div><div class="tf-tile-val sc-weak" id="tile-lower">0%</div></div>
+      <div class="tf-tile full"><div class="tf-tile-label">Entry Signal</div><div class="tf-tile-val sc-weak" id="tile-entry">0%</div></div>
+    </div>
+
+    <!-- WEEKLY -->
+    <div class="tf-section">
+      <div class="tf-header open" onclick="toggleSec('weekly',this)">
+        <div class="tf-left">
+          <div class="tf-badge">WEEKLY</div>
+          <div class="tf-conf" id="conf-weekly">0% confluence</div>
+        </div>
+        <div class="tf-right">
+          <div class="tf-score sc-weak" id="score-weekly">0%</div>
+          <div class="tf-chevron">▼</div>
+        </div>
+      </div>
+      <div class="tf-body" id="body-weekly">
+        <div class="check-item" onclick="toggleCheck(this,'weekly',10)"><div class="check-left"><div class="check-box"><svg width="10" height="8" viewBox="0 0 10 8"><path d="M1 4L3.5 6.5L9 1" stroke="#090d14" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" fill="none"/></svg></div><div><div class="check-name">Trend</div><div class="check-desc">HH/LL structure confirms direction</div></div></div><div class="check-weight">+10%</div></div>
+        <div class="divider"></div>
+        <div class="check-item" onclick="toggleCheck(this,'weekly',10)"><div class="check-left"><div class="check-box"><svg width="10" height="8" viewBox="0 0 10 8"><path d="M1 4L3.5 6.5L9 1" stroke="#090d14" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" fill="none"/></svg></div><div><div class="check-name">At AOI / Rejected</div><div class="check-desc">Price at or rejected from key area</div></div></div><div class="check-weight">+10%</div></div>
+        <div class="divider"></div>
+        <div class="check-item" onclick="toggleCheck(this,'weekly',5)"><div class="check-left"><div class="check-box"><svg width="10" height="8" viewBox="0 0 10 8"><path d="M1 4L3.5 6.5L9 1" stroke="#090d14" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" fill="none"/></svg></div><div><div class="check-name">Touching EMA</div><div class="check-desc">Bounce or touch off key EMA</div></div></div><div class="check-weight">+5%</div></div>
+        <div class="divider"></div>
+        <div class="check-item" onclick="toggleCheck(this,'weekly',5)"><div class="check-left"><div class="check-box"><svg width="10" height="8" viewBox="0 0 10 8"><path d="M1 4L3.5 6.5L9 1" stroke="#090d14" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" fill="none"/></svg></div><div><div class="check-name">Round Psychological Level</div><div class="check-desc">Price at .00 / .50 psych level</div></div></div><div class="check-weight">+5%</div></div>
+        <div class="divider"></div>
+        <div class="check-item" onclick="toggleCheck(this,'weekly',10)"><div class="check-left"><div class="check-box"><svg width="10" height="8" viewBox="0 0 10 8"><path d="M1 4L3.5 6.5L9 1" stroke="#090d14" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" fill="none"/></svg></div><div><div class="check-name">Rejection from Previous Structure</div><div class="check-desc">Clear rejection wick from S/R zone</div></div></div><div class="check-weight">+10%</div></div>
+        <div class="divider"></div>
+        <div class="check-item" onclick="toggleCheck(this,'weekly',10)"><div class="check-left"><div class="check-box"><svg width="10" height="8" viewBox="0 0 10 8"><path d="M1 4L3.5 6.5L9 1" stroke="#090d14" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" fill="none"/></svg></div><div><div class="check-name">Candlestick Rejection from AOI</div><div class="check-desc">Pin bar / doji / engulfing at level</div></div></div><div class="check-weight">+10%</div></div>
+        <div class="divider"></div>
+        <div class="check-item" onclick="toggleCheck(this,'weekly',10)"><div class="check-left"><div class="check-box"><svg width="10" height="8" viewBox="0 0 10 8"><path d="M1 4L3.5 6.5L9 1" stroke="#090d14" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" fill="none"/></svg></div><div><div class="check-name">Break &amp; Retest / H&amp;S Pattern</div><div class="check-desc">BRT or head &amp; shoulders confirmation</div></div></div><div class="check-weight">+10%</div></div>
+      </div>
+    </div>
+
+    <!-- DAILY -->
+    <div class="tf-section">
+      <div class="tf-header open" onclick="toggleSec('daily',this)">
+        <div class="tf-left"><div class="tf-badge">DAILY</div><div class="tf-conf" id="conf-daily">0% confluence</div></div>
+        <div class="tf-right"><div class="tf-score sc-weak" id="score-daily">0%</div><div class="tf-chevron">▼</div></div>
+      </div>
+      <div class="tf-body" id="body-daily">
+        <div class="check-item" onclick="toggleCheck(this,'daily',10)"><div class="check-left"><div class="check-box"><svg width="10" height="8" viewBox="0 0 10 8"><path d="M1 4L3.5 6.5L9 1" stroke="#090d14" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" fill="none"/></svg></div><div><div class="check-name">Trend</div><div class="check-desc">Daily aligned with weekly bias</div></div></div><div class="check-weight">+10%</div></div>
+        <div class="divider"></div>
+        <div class="check-item" onclick="toggleCheck(this,'daily',10)"><div class="check-left"><div class="check-box"><svg width="10" height="8" viewBox="0 0 10 8"><path d="M1 4L3.5 6.5L9 1" stroke="#090d14" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" fill="none"/></svg></div><div><div class="check-name">At AOI / Rejected</div><div class="check-desc">Daily demand/supply zone active</div></div></div><div class="check-weight">+10%</div></div>
+        <div class="divider"></div>
+        <div class="check-item" onclick="toggleCheck(this,'daily',5)"><div class="check-left"><div class="check-box"><svg width="10" height="8" viewBox="0 0 10 8"><path d="M1 4L3.5 6.5L9 1" stroke="#090d14" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" fill="none"/></svg></div><div><div class="check-name">Touching EMA</div><div class="check-desc">EMA confluence on daily</div></div></div><div class="check-weight">+5%</div></div>
+        <div class="divider"></div>
+        <div class="check-item" onclick="toggleCheck(this,'daily',5)"><div class="check-left"><div class="check-box"><svg width="10" height="8" viewBox="0 0 10 8"><path d="M1 4L3.5 6.5L9 1" stroke="#090d14" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" fill="none"/></svg></div><div><div class="check-name">Round Psychological Level</div><div class="check-desc">Key psych number on daily</div></div></div><div class="check-weight">+5%</div></div>
+        <div class="divider"></div>
+        <div class="check-item" onclick="toggleCheck(this,'daily',10)"><div class="check-left"><div class="check-box"><svg width="10" height="8" viewBox="0 0 10 8"><path d="M1 4L3.5 6.5L9 1" stroke="#090d14" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" fill="none"/></svg></div><div><div class="check-name">Rejection from Previous Structure</div><div class="check-desc">Confirmed rejection on daily candle</div></div></div><div class="check-weight">+10%</div></div>
+        <div class="divider"></div>
+        <div class="check-item" onclick="toggleCheck(this,'daily',10)"><div class="check-left"><div class="check-box"><svg width="10" height="8" viewBox="0 0 10 8"><path d="M1 4L3.5 6.5L9 1" stroke="#090d14" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" fill="none"/></svg></div><div><div class="check-name">Candlestick Rejection from AOI</div><div class="check-desc">Reversal candle at daily AOI</div></div></div><div class="check-weight">+10%</div></div>
+        <div class="divider"></div>
+        <div class="check-item" onclick="toggleCheck(this,'daily',10)"><div class="check-left"><div class="check-box"><svg width="10" height="8" viewBox="0 0 10 8"><path d="M1 4L3.5 6.5L9 1" stroke="#090d14" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" fill="none"/></svg></div><div><div class="check-name">Break &amp; Retest / H&amp;S Pattern</div><div class="check-desc">Pattern confirmation on daily</div></div></div><div class="check-weight">+10%</div></div>
+      </div>
+    </div>
+
+    <!-- 4H -->
+    <div class="tf-section">
+      <div class="tf-header open" onclick="toggleSec('4h',this)">
+        <div class="tf-left"><div class="tf-badge">4H</div><div class="tf-conf" id="conf-4h">0% confluence</div></div>
+        <div class="tf-right"><div class="tf-score sc-weak" id="score-4h">0%</div><div class="tf-chevron">▼</div></div>
+      </div>
+      <div class="tf-body" id="body-4h">
+        <div class="check-item" onclick="toggleCheck(this,'4h',5)"><div class="check-left"><div class="check-box"><svg width="10" height="8" viewBox="0 0 10 8"><path d="M1 4L3.5 6.5L9 1" stroke="#090d14" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" fill="none"/></svg></div><div><div class="check-name">Trend</div><div class="check-desc">4H direction aligned with macro</div></div></div><div class="check-weight">+5%</div></div>
+        <div class="divider"></div>
+        <div class="check-item" onclick="toggleCheck(this,'4h',5)"><div class="check-left"><div class="check-box"><svg width="10" height="8" viewBox="0 0 10 8"><path d="M1 4L3.5 6.5L9 1" stroke="#090d14" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" fill="none"/></svg></div><div><div class="check-name">At AOI / Rejected</div><div class="check-desc">4H demand/supply zone active</div></div></div><div class="check-weight">+5%</div></div>
+        <div class="divider"></div>
+        <div class="check-item" onclick="toggleCheck(this,'4h',5)"><div class="check-left"><div class="check-box"><svg width="10" height="8" viewBox="0 0 10 8"><path d="M1 4L3.5 6.5L9 1" stroke="#090d14" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" fill="none"/></svg></div><div><div class="check-name">Touching EMA</div><div class="check-desc">EMA support/resistance on 4H</div></div></div><div class="check-weight">+5%</div></div>
+        <div class="divider"></div>
+        <div class="check-item" onclick="toggleCheck(this,'4h',5)"><div class="check-left"><div class="check-box"><svg width="10" height="8" viewBox="0 0 10 8"><path d="M1 4L3.5 6.5L9 1" stroke="#090d14" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" fill="none"/></svg></div><div><div class="check-name">Round Psychological Level</div><div class="check-desc">Psych level visible on 4H</div></div></div><div class="check-weight">+5%</div></div>
+        <div class="divider"></div>
+        <div class="check-item" onclick="toggleCheck(this,'4h',10)"><div class="check-left"><div class="check-box"><svg width="10" height="8" viewBox="0 0 10 8"><path d="M1 4L3.5 6.5L9 1" stroke="#090d14" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" fill="none"/></svg></div><div><div class="check-name">Rejection from Previous Structure</div><div class="check-desc">4H candle rejected prev S/R</div></div></div><div class="check-weight">+10%</div></div>
+        <div class="divider"></div>
+        <div class="check-item" onclick="toggleCheck(this,'4h',5)"><div class="check-left"><div class="check-box"><svg width="10" height="8" viewBox="0 0 10 8"><path d="M1 4L3.5 6.5L9 1" stroke="#090d14" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" fill="none"/></svg></div><div><div class="check-name">Candlestick Rejection from AOI</div><div class="check-desc">Reversal candlestick confirmation</div></div></div><div class="check-weight">+5%</div></div>
+        <div class="divider"></div>
+        <div class="check-item" onclick="toggleCheck(this,'4h',10)"><div class="check-left"><div class="check-box"><svg width="10" height="8" viewBox="0 0 10 8"><path d="M1 4L3.5 6.5L9 1" stroke="#090d14" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" fill="none"/></svg></div><div><div class="check-name">Break &amp; Retest / H&amp;S Pattern</div><div class="check-desc">Break and retest confirmed on 4H</div></div></div><div class="check-weight">+10%</div></div>
+      </div>
+    </div>
+
+    <!-- 2H/1H/30m -->
+    <div class="tf-section">
+      <div class="tf-header open" onclick="toggleSec('lower',this)">
+        <div class="tf-left"><div class="tf-badge">2H · 1H · 30m</div><div class="tf-conf" id="conf-lower">0% confluence</div></div>
+        <div class="tf-right"><div class="tf-score sc-weak" id="score-lower">0%</div><div class="tf-chevron">▼</div></div>
+      </div>
+      <div class="tf-body" id="body-lower">
+        <div class="check-item" onclick="toggleCheck(this,'lower',5)"><div class="check-left"><div class="check-box"><svg width="10" height="8" viewBox="0 0 10 8"><path d="M1 4L3.5 6.5L9 1" stroke="#090d14" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" fill="none"/></svg></div><div><div class="check-name">Trend</div><div class="check-desc">Lower TF structure aligned with bias</div></div></div><div class="check-weight">+5%</div></div>
+        <div class="divider"></div>
+        <div class="check-item" onclick="toggleCheck(this,'lower',5)"><div class="check-left"><div class="check-box"><svg width="10" height="8" viewBox="0 0 10 8"><path d="M1 4L3.5 6.5L9 1" stroke="#090d14" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" fill="none"/></svg></div><div><div class="check-name">Touching EMA</div><div class="check-desc">EMA confluence on execution TF</div></div></div><div class="check-weight">+5%</div></div>
+        <div class="divider"></div>
+        <div class="check-item" onclick="toggleCheck(this,'lower',5)"><div class="check-left"><div class="check-box"><svg width="10" height="8" viewBox="0 0 10 8"><path d="M1 4L3.5 6.5L9 1" stroke="#090d14" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" fill="none"/></svg></div><div><div class="check-name">Break &amp; Retest / H&amp;S Pattern</div><div class="check-desc">Entry-level pattern confirmed</div></div></div><div class="check-weight">+5%</div></div>
+      </div>
+    </div>
+
+    <!-- ENTRY SIGNAL -->
+    <div class="tf-section">
+      <div class="tf-header open" onclick="toggleSec('entry',this)">
+        <div class="tf-left"><div class="tf-badge">ENTRY SIGNAL</div><div class="tf-conf" id="conf-entry">0% confluence</div></div>
+        <div class="tf-right"><div class="tf-score sc-weak" id="score-entry">0%</div><div class="tf-chevron">▼</div></div>
+      </div>
+      <div class="tf-body" id="body-entry">
+        <div class="check-item" onclick="toggleCheck(this,'entry',10)"><div class="check-left"><div class="check-box"><svg width="10" height="8" viewBox="0 0 10 8"><path d="M1 4L3.5 6.5L9 1" stroke="#090d14" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" fill="none"/></svg></div><div><div class="check-name">SOS — Sign of Strength</div><div class="check-desc">Strong momentum candle confirms direction</div></div></div><div class="check-weight">+10%</div></div>
+        <div class="divider"></div>
+        <div class="check-item" onclick="toggleCheck(this,'entry',10)"><div class="check-left"><div class="check-box"><svg width="10" height="8" viewBox="0 0 10 8"><path d="M1 4L3.5 6.5L9 1" stroke="#090d14" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" fill="none"/></svg></div><div><div class="check-name">Engulfing Candle (30m–4H)</div><div class="check-desc">Bullish/bearish engulf on execution TF</div></div></div><div class="check-weight">+10%</div></div>
+      </div>
+    </div>
+
+    <!-- SL/TP -->
+    <div class="tf-section">
+      <div class="tf-header open" onclick="toggleSec('risk',this)">
+        <div class="tf-left"><div class="tf-badge">SL &amp; TAKE PROFIT</div></div>
+        <div class="tf-right"><div class="tf-chevron">▼</div></div>
+      </div>
+      <div class="tf-body" id="body-risk">
+        <div class="check-item" onclick="toggleCheck(this,'risk',0)"><div class="check-left"><div class="check-box"><svg width="10" height="8" viewBox="0 0 10 8"><path d="M1 4L3.5 6.5L9 1" stroke="#090d14" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" fill="none"/></svg></div><div><div class="check-name">Stop Loss Set</div><div class="check-desc">SL placed beyond structure — not a round number</div></div></div><div class="must-badge">MUST</div></div>
+        <div class="divider"></div>
+        <div class="check-item" onclick="toggleCheck(this,'risk',0)"><div class="check-left"><div class="check-box"><svg width="10" height="8" viewBox="0 0 10 8"><path d="M1 4L3.5 6.5L9 1" stroke="#090d14" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" fill="none"/></svg></div><div><div class="check-name">Take Profit Set</div><div class="check-desc">TP at next major S/R — min 1:2 R:R</div></div></div><div class="must-badge">MUST</div></div>
+      </div>
+    </div>
+
+    <!-- SAVE / RESET -->
+    <button class="save-btn" id="saveBtn" onclick="saveTrade()">
+      <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M13 2H3a1 1 0 00-1 1v10a1 1 0 001 1h10a1 1 0 001-1V3a1 1 0 00-1-1z" stroke="#090d14" stroke-width="1.5"/><path d="M5 2v4h6V2M5 9h6v5H5z" stroke="#090d14" stroke-width="1.5" stroke-linejoin="round"/></svg>
+      Save Trade
+    </button>
+    <button class="reset-btn" onclick="resetChecklist()">↺ Reset Checklist</button>
+  </div>
+
+  <!-- ══════════════ DASHBOARD PAGE ══════════════ -->
+  <div id="page-dashboard" class="page">
+    <div class="page-header">
+      <div class="page-title">Trade <span>Dashboard</span></div>
+      <div class="page-sub">Performance overview</div>
+    </div>
+
+    <div class="kpi-grid">
+      <div class="kpi-card"><div class="kpi-accent-bg" style="background:var(--accent)"></div><div class="kpi-label">Total Trades</div><div class="kpi-val" id="kpi-total">0</div><div class="kpi-sub">all setups</div></div>
+      <div class="kpi-card"><div class="kpi-accent-bg" style="background:var(--accent)"></div><div class="kpi-label">Win Rate</div><div class="kpi-val sc-good" id="kpi-wr">—</div><div class="kpi-sub" id="kpi-wr-sub">—</div></div>
+      <div class="kpi-card"><div class="kpi-accent-bg" style="background:var(--blue)"></div><div class="kpi-label">Avg Confluence</div><div class="kpi-val sc-good" id="kpi-avg">—</div><div class="kpi-sub">mean score</div></div>
+      <div class="kpi-card"><div class="kpi-accent-bg" style="background:var(--yellow)"></div><div class="kpi-label">Best Score</div><div class="kpi-val" style="color:var(--yellow)" id="kpi-best">—</div><div class="kpi-sub">highest trade</div></div>
+    </div>
+
+    <div class="dash-card">
+      <div class="dash-card-title">Win Rate <span class="dash-tag" id="wr-sub2">—</span></div>
+      <div style="display:flex;align-items:center;gap:20px;">
+        <div class="donut-wrap">
+          <svg viewBox="0 0 100 100" width="90" height="90">
+            <circle class="donut-bg" cx="50" cy="50" r="38"/>
+            <circle class="donut-fill" id="winDonut" cx="50" cy="50" r="38" stroke="var(--accent)" stroke-dasharray="238.76" stroke-dashoffset="238.76"/>
+          </svg>
+          <div class="donut-text"><div class="donut-pct sc-good" id="donutPct">—</div><div class="donut-sub">WIN %</div></div>
+        </div>
+        <div class="win-pills" style="flex:1;">
+          <div class="win-pill"><div class="win-pill-label">Wins</div><div class="win-pill-val" style="color:var(--accent)" id="dWins">0</div></div>
+          <div class="win-pill"><div class="win-pill-label">Loss</div><div class="win-pill-val" style="color:var(--red)" id="dLoss">0</div></div>
+          <div class="win-pill"><div class="win-pill-label">B/E</div><div class="win-pill-val" style="color:var(--yellow)" id="dBE">0</div></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="dash-card">
+      <div class="dash-card-title">Confluence by Timeframe <span class="dash-tag">avg %</span></div>
+      <div class="bar-chart" id="confBars"><div class="empty-state" style="padding:0;font-size:11px;">Save trades to see data</div></div>
+    </div>
+
+    <div class="dash-card" style="margin-bottom:24px;">
+      <div class="dash-card-title">Recent Trades <span class="dash-tag" id="recentCount">0 trades</span></div>
+      <table class="trades-table">
+        <thead><tr><th>Pair</th><th>Dir</th><th>Score</th><th>Outcome</th><th>Date</th></tr></thead>
+        <tbody id="recentBody"><tr><td colspan="5" class="empty-state" style="padding:20px 0;">No trades yet.</td></tr></tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- ══════════════ CALENDAR PAGE ══════════════ -->
+  <div id="page-calendar" class="page">
+    <div class="cal-header">
+      <div class="cal-title" id="calTitle">March 2026</div>
+      <div class="cal-navs">
+        <button class="cal-nav-btn" onclick="changeMonth(-1)">‹</button>
+        <button class="cal-nav-btn" onclick="changeMonth(1)">›</button>
+      </div>
+    </div>
+
+    <div class="cal-grid">
+      <div class="cal-days-header">
+        <div class="cal-day-name">M</div><div class="cal-day-name">T</div><div class="cal-day-name">W</div>
+        <div class="cal-day-name">T</div><div class="cal-day-name">F</div><div class="cal-day-name">S</div><div class="cal-day-name">S</div>
+      </div>
+      <div class="cal-cells" id="calCells"></div>
+    </div>
+
+    <div class="cal-detail" id="calDetail">
+      <div class="cal-detail-date" id="calDetailDate">Tap a date</div>
+      <div class="cal-detail-sub" id="calDetailSub">Select any day to view trades</div>
+      <div id="calDetailTrades"><div class="empty-state" style="padding:10px 0;">No trades on this day.</div></div>
+    </div>
+  </div>
+
+  <!-- ══════════════ JOURNAL PAGE ══════════════ -->
+  <div id="page-journal" class="page">
+    <div class="page-header">
+      <div class="page-title">Trade <span>Journal</span></div>
+      <div class="page-sub">Log outcomes &amp; refine your edge</div>
+    </div>
+
+    <div class="journal-form-card">
+      <div class="journal-form-title">+ Add Entry</div>
+      <div class="form-row">
+        <div class="form-group" style="margin-bottom:0">
+          <label class="form-label">Pair</label>
+          <input class="form-input" id="jPair" placeholder="EUR/USD" autocapitalize="characters">
+        </div>
+        <div class="form-group" style="margin-bottom:0">
+          <label class="form-label">Score %</label>
+          <input class="form-input" id="jScore" placeholder="75" type="number" min="0" max="100" inputmode="numeric">
+        </div>
+      </div>
+      <div style="margin-top:10px;" class="form-row">
+        <div class="form-group" style="margin-bottom:0">
+          <label class="form-label">R:R Ratio</label>
+          <input class="form-input" id="jRR" placeholder="1:2.5">
+        </div>
+        <div class="form-group" style="margin-bottom:0">
+          <label class="form-label">Outcome</label>
+          <div class="outcome-btns">
+            <button class="outcome-btn win-btn" onclick="setOutcome('WIN',this)">W</button>
+            <button class="outcome-btn loss-btn" onclick="setOutcome('LOSS',this)">L</button>
+            <button class="outcome-btn be-btn" onclick="setOutcome('B/E',this)">B/E</button>
+          </div>
+        </div>
+      </div>
+      <div class="form-group" style="margin-top:10px;">
+        <label class="form-label">Notes</label>
+        <textarea class="form-textarea" id="jNotes" placeholder="What went well? What would you do differently?"></textarea>
+      </div>
+      <button class="add-btn" onclick="addJournalEntry()">Add Entry</button>
+    </div>
+
+    <div id="journalList">
+      <div class="empty-state">No journal entries yet.<br>Save trades or add manually above.</div>
+    </div>
+  </div>
+
+</div><!-- end scroll-area -->
+
+<!-- BOTTOM NAV -->
+<nav id="bottom-nav">
+  <button class="nav-item active" onclick="showPage('checklist',this)">
+    <div class="nav-icon">⬡</div>
+    <div class="nav-label">Check</div>
+  </button>
+  <button class="nav-item" onclick="showPage('dashboard',this)">
+    <div class="nav-icon">◈</div>
+    <div class="nav-label">Dash</div>
+  </button>
+  <button class="nav-item" onclick="showPage('calendar',this)">
+    <div class="nav-icon">◷</div>
+    <div class="nav-label">Cal</div>
+  </button>
+  <button class="nav-item" onclick="showPage('journal',this)">
+    <div class="nav-icon">◎</div>
+    <div class="nav-label">Journal</div>
+  </button>
+</nav>
+
+<!-- INSTALL BANNER -->
+<div id="installBanner">
+  <div class="install-text">
+    <div class="install-title">Install App</div>
+    <div class="install-sub">Add to home screen for offline access</div>
+  </div>
+  <button class="install-btn" id="installBtn">Install</button>
+  <button class="install-close" onclick="document.getElementById('installBanner').classList.remove('show')">×</button>
+</div>
+
+<!-- TOAST -->
+<div id="toast"></div>
+
+<script>
+// ═══════════════════════════ STATE ═══════════════════════════
+const S = {
+  scores: { weekly:0, daily:0, '4h':0, lower:0, entry:0 },
+  maxScores: { weekly:60, daily:60, '4h':45, lower:15, entry:20 },
+  trades: JSON.parse(localStorage.getItem('pt_trades_v2') || '[]'),
+  calYear: 2026, calMonth: 2,
+  dir: null, jOutcome: null,
+};
+
+// ═══════════════════════════ NAV ═══════════════════════════
+function showPage(id, btn) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(b => b.classList.remove('active'));
+  document.getElementById('page-' + id).classList.add('active');
+  if (btn) btn.classList.add('active');
+  document.getElementById('scroll-area').scrollTop = 0;
+  if (id === 'dashboard') renderDash();
+  if (id === 'calendar') renderCal();
+  if (id === 'journal') renderJournal();
+}
+
+// ═══════════════════════════ CHECKLIST ═══════════════════════════
+function toggleSec(id, header) {
+  const body = document.getElementById('body-' + id);
+  const isOpen = !body.classList.contains('collapsed');
+  body.classList.toggle('collapsed', isOpen);
+  header.classList.toggle('open', !isOpen);
+}
+
+function toggleCheck(item, section, weight) {
+  item.classList.toggle('checked');
+  recalc(section);
+}
+
+function recalc(section) {
+  let total = 0;
+  document.getElementById('body-' + section).querySelectorAll('.check-item.checked').forEach(item => {
+    const w = item.querySelector('.check-weight');
+    if (w) { const v = parseInt(w.textContent); if (!isNaN(v)) total += v; }
+  });
+  S.scores[section] = total;
+  const max = S.maxScores[section] || 100;
+  const pct = Math.round(total / max * 100);
+  const sc = document.getElementById('score-' + section);
+  const cf = document.getElementById('conf-' + section);
+  const ti = document.getElementById('tile-' + section);
+  if (sc) { sc.textContent = pct + '%'; sc.className = 'tf-score ' + scoreClass(pct); }
+  if (cf) cf.textContent = pct + '% confluence';
+  if (ti) { ti.textContent = pct + '%'; ti.className = 'tf-tile-val ' + scoreClass(pct); }
+  updateTotal();
+}
+
+function scoreClass(pct) {
+  if (pct >= 80) return 'sc-strong';
+  if (pct >= 60) return 'sc-good';
+  if (pct >= 40) return 'sc-avg';
+  return 'sc-weak';
+}
+
+function updateTotal() {
+  const total = Object.values(S.scores).reduce((a, b) => a + b, 0);
+  const max = Object.values(S.maxScores).reduce((a, b) => a + b, 0);
+  const pct = Math.round(total / max * 100);
+  const circ = 251.33;
+  const fill = document.getElementById('arcFill');
+  fill.style.strokeDashoffset = circ - circ * pct / 100;
+  if (pct >= 80) fill.style.stroke = '#00ffb3';
+  else if (pct >= 60) fill.style.stroke = '#00e5a0';
+  else if (pct >= 40) fill.style.stroke = '#f5c842';
+  else fill.style.stroke = '#ff4d6a';
+  const pctEl = document.getElementById('totalPct');
+  pctEl.textContent = pct + '%';
+  pctEl.className = 'arc-pct ' + scoreClass(pct);
+  const grades = ['✗ Weak Setup', '⚠ Average Setup', '✓ Good Setup', '🔥 Strong Setup'];
+  const gradeIdx = pct >= 80 ? 3 : pct >= 60 ? 2 : pct >= 40 ? 1 : 0;
+  const gradeEl = document.getElementById('tradeGrade');
+  gradeEl.textContent = grades[gradeIdx];
+  gradeEl.className = 'arc-grade ' + scoreClass(pct);
+  const bar = document.getElementById('confBar');
+  bar.style.width = pct + '%';
+  bar.style.background = pct >= 70 ? 'var(--accent)' : pct >= 50 ? 'var(--yellow)' : 'var(--red)';
+  document.getElementById('topBadge').textContent = pct + '%';
+}
+
+function setDir(dir, btn) {
+  S.dir = dir;
+  document.querySelectorAll('.dir-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+}
+
+function saveTrade() {
+  const pair = (document.getElementById('tradePair').value || 'UNKNOWN').toUpperCase();
+  const total = Object.values(S.scores).reduce((a, b) => a + b, 0);
+  const max = Object.values(S.maxScores).reduce((a, b) => a + b, 0);
+  const pct = Math.round(total / max * 100);
+  const grades = ['Weak Setup', 'Average Setup', 'Good Setup', 'Strong Setup'];
+  const grade = grades[pct >= 80 ? 3 : pct >= 60 ? 2 : pct >= 40 ? 1 : 0];
+  const trade = {
+    id: Date.now(), pair, dir: S.dir || '—', score: pct, grade,
+    entry: document.getElementById('entryPrice').value,
+    sl: document.getElementById('slPrice').value,
+    tp: document.getElementById('tpPrice').value,
+    date: new Date().toISOString(),
+    outcome: null, notes: '', rr: '—',
+    scores: {...S.scores},
+  };
+  S.trades.unshift(trade);
+  localStorage.setItem('pt_trades_v2', JSON.stringify(S.trades));
+  toast('✓ Trade saved!');
+  const btn = document.getElementById('saveBtn');
+  btn.textContent = '✓ Saved!'; btn.style.background = '#00ffb3';
+  setTimeout(() => { btn.innerHTML = '<svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M13 2H3a1 1 0 00-1 1v10a1 1 0 001 1h10a1 1 0 001-1V3a1 1 0 00-1-1z" stroke="#090d14" stroke-width="1.5"/><path d="M5 2v4h6V2M5 9h6v5H5z" stroke="#090d14" stroke-width="1.5" stroke-linejoin="round"/></svg> Save Trade'; btn.style.background = ''; }, 2000);
+}
+
+function resetChecklist() {
+  document.querySelectorAll('.check-item.checked').forEach(i => i.classList.remove('checked'));
+  Object.keys(S.scores).forEach(k => S.scores[k] = 0);
+  ['weekly','daily','4h','lower','entry'].forEach(s => {
+    const sc = document.getElementById('score-' + s);
+    const cf = document.getElementById('conf-' + s);
+    const ti = document.getElementById('tile-' + s);
+    if (sc) { sc.textContent = '0%'; sc.className = 'tf-score sc-weak'; }
+    if (cf) cf.textContent = '0% confluence';
+    if (ti) { ti.textContent = '0%'; ti.className = 'tf-tile-val sc-weak'; }
+  });
+  document.getElementById('arcFill').style.strokeDashoffset = '251.33';
+  document.getElementById('arcFill').style.stroke = '#ff4d6a';
+  document.getElementById('totalPct').textContent = '0%';
+  document.getElementById('totalPct').className = 'arc-pct sc-weak';
+  document.getElementById('tradeGrade').textContent = '✗ Weak Setup';
+  document.getElementById('tradeGrade').className = 'arc-grade sc-weak';
+  document.getElementById('confBar').style.width = '0%';
+  document.getElementById('topBadge').textContent = '0%';
+  document.getElementById('tradePair').value = '';
+  document.getElementById('entryPrice').value = '';
+  document.getElementById('slPrice').value = '';
+  document.getElementById('tpPrice').value = '';
+  document.querySelectorAll('.dir-btn').forEach(b => b.classList.remove('active'));
+  S.dir = null;
+  toast('Checklist reset');
+}
+
+// ═══════════════════════════ DASHBOARD ═══════════════════════════
+function renderDash() {
+  const T = S.trades;
+  document.getElementById('kpi-total').textContent = T.length;
+  const withO = T.filter(t => t.outcome);
+  const wins = T.filter(t => t.outcome === 'WIN').length;
+  const losses = T.filter(t => t.outcome === 'LOSS').length;
+  const be = T.filter(t => t.outcome === 'B/E').length;
+  const wr = withO.length ? Math.round(wins / withO.length * 100) : null;
+  document.getElementById('kpi-wr').textContent = wr !== null ? wr + '%' : '—';
+  document.getElementById('kpi-wr-sub').textContent = `${wins}W / ${withO.length} recorded`;
+  document.getElementById('wr-sub2').textContent = wr !== null ? wr + '%' : '—';
+  document.getElementById('dWins').textContent = wins;
+  document.getElementById('dLoss').textContent = losses;
+  document.getElementById('dBE').textContent = be;
+  const avg = T.length ? Math.round(T.reduce((a, t) => a + t.score, 0) / T.length) : null;
+  const best = T.length ? Math.max(...T.map(t => t.score)) : null;
+  document.getElementById('kpi-avg').textContent = avg !== null ? avg + '%' : '—';
+  document.getElementById('kpi-best').textContent = best !== null ? best + '%' : '—';
+  const circ = 238.76;
+  const donut = document.getElementById('winDonut');
+  donut.style.strokeDashoffset = wr !== null ? circ - circ * wr / 100 : circ;
+  document.getElementById('donutPct').textContent = wr !== null ? wr + '%' : '—';
+  document.getElementById('recentCount').textContent = T.length + ' trades';
+  const tbody = document.getElementById('recentBody');
+  if (!T.length) { tbody.innerHTML = '<tr><td colspan="5" class="empty-state" style="padding:16px 0;">No trades saved yet.</td></tr>'; }
+  else {
+    tbody.innerHTML = T.slice(0, 8).map(t => {
+      const d = new Date(t.date).toLocaleDateString('en-GB', {day:'2-digit', month:'short'});
+      const sc = t.score >= 70 ? 'var(--accent)' : t.score >= 50 ? 'var(--yellow)' : 'var(--red)';
+      const oc = t.outcome === 'WIN' ? 't-win' : t.outcome === 'LOSS' ? 't-loss' : '';
+      return `<tr><td class="t-pair">${t.pair}</td><td class="${t.dir==='LONG'?'t-long':'t-short'}">${t.dir}</td><td><span class="t-score" style="color:${sc}">${t.score}%</span></td><td class="${oc}">${t.outcome||'—'}</td><td class="t-date">${d}</td></tr>`;
+    }).join('');
+  }
+  if (T.length) {
+    const tfs = ['weekly','daily','4h','lower','entry'];
+    const labels = ['WKly','Daily','4H','2H-30','Sig'];
+    const maxV = [60,60,45,15,20];
+    const avgs = tfs.map((tf,i) => {
+      const vals = T.filter(t => t.scores && t.scores[tf] !== undefined).map(t => t.scores[tf]);
+      return vals.length ? Math.round(vals.reduce((a,b)=>a+b,0)/vals.length/maxV[i]*100) : 0;
+    });
+    const maxA = Math.max(...avgs, 1);
+    document.getElementById('confBars').innerHTML = tfs.map((tf,i) => {
+      const h = Math.round(avgs[i]/maxA * 68) + 4;
+      const c = avgs[i]>=70?'var(--accent)':avgs[i]>=50?'var(--yellow)':'var(--red)';
+      return `<div class="bar-col"><div class="bar-col-val">${avgs[i]}%</div><div class="bar-col-bar" style="height:${h}px;background:${c};"></div><div class="bar-col-lbl">${labels[i]}</div></div>`;
+    }).join('');
+  }
+}
+
+// ═══════════════════════════ CALENDAR ═══════════════════════════
+const MONTHS = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+const DAYS_S = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+
+function renderCal() {
+  document.getElementById('calTitle').textContent = MONTHS[S.calMonth] + ' ' + S.calYear;
+  const first = new Date(S.calYear, S.calMonth, 1);
+  let dow = first.getDay(); dow = dow === 0 ? 6 : dow - 1;
+  const dim = new Date(S.calYear, S.calMonth + 1, 0).getDate();
+  const diPrev = new Date(S.calYear, S.calMonth, 0).getDate();
+  const today = new Date();
+  const cells = document.getElementById('calCells');
+  cells.innerHTML = '';
+  for (let i = 0; i < 42; i++) {
+    let day, month = S.calMonth, year = S.calYear, other = false;
+    if (i < dow) { day = diPrev - dow + i + 1; month = S.calMonth - 1; other = true; if (month < 0) { month = 11; year--; } }
+    else if (i - dow >= dim) { day = i - dow - dim + 1; month = S.calMonth + 1; other = true; if (month > 11) { month = 0; year++; } }
+    else day = i - dow + 1;
+    const cell = document.createElement('div');
+    cell.className = 'cal-cell' + (other?' other-month':'') + (!other && day===today.getDate() && S.calMonth===today.getMonth() && S.calYear===today.getFullYear()?' today':'');
+    cell.innerHTML = `<div class="cal-date-num">${day}</div><div class="cal-dots" id="cdots-${year}-${month}-${day}"></div>`;
+    cell.addEventListener('click', () => selectDay(day, month, year));
+    cells.appendChild(cell);
+  }
+  S.trades.forEach(t => {
+    const d = new Date(t.date);
+    const dotsEl = document.getElementById(`cdots-${d.getFullYear()}-${d.getMonth()}-${d.getDate()}`);
+    if (dotsEl && dotsEl.children.length < 4) {
+      const dot = document.createElement('div');
+      dot.className = 'cal-dot ' + (t.outcome==='WIN'?'win':t.outcome==='LOSS'?'loss':'be');
+      dotsEl.appendChild(dot);
+    }
+  });
+}
+
+function selectDay(day, month, year) {
+  document.querySelectorAll('.cal-cell.selected').forEach(c => c.classList.remove('selected'));
+  const dayTrades = S.trades.filter(t => { const d = new Date(t.date); return d.getDate()===day && d.getMonth()===month && d.getFullYear()===year; });
+  document.getElementById('calDetailDate').textContent = `${DAYS_S[new Date(year,month,day).getDay()]} ${day} ${MONTHS[month].slice(0,3)} ${year}`;
+  document.getElementById('calDetailSub').textContent = dayTrades.length ? `${dayTrades.length} trade${dayTrades.length>1?'s':''}` : 'No trades';
+  const container = document.getElementById('calDetailTrades');
+  if (!dayTrades.length) { container.innerHTML = '<div class="empty-state" style="padding:10px 0;">No trades on this day.</div>'; return; }
+  container.innerHTML = dayTrades.map(t => {
+    const sc = t.score>=70?'var(--accent)':t.score>=50?'var(--yellow)':'var(--red)';
+    const oc = t.outcome==='WIN'?'var(--accent)':t.outcome==='LOSS'?'var(--red)':'var(--yellow)';
+    return `<div class="cal-trade-item"><div class="cal-trade-top"><div class="cal-trade-pair">${t.pair}</div><div class="${t.dir==='LONG'?'t-long':'t-short'}">${t.dir}</div></div><div class="cal-trade-meta"><span style="color:${sc};">${t.score}% confluence</span><span style="color:${oc};font-weight:600;">${t.outcome||'Pending'}</span></div></div>`;
+  }).join('');
+}
+
+function changeMonth(dir) {
+  S.calMonth += dir;
+  if (S.calMonth > 11) { S.calMonth = 0; S.calYear++; }
+  if (S.calMonth < 0) { S.calMonth = 11; S.calYear--; }
+  renderCal();
+}
+
+// ═══════════════════════════ JOURNAL ═══════════════════════════
+function setOutcome(val, btn) {
+  S.jOutcome = val;
+  document.querySelectorAll('.outcome-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+}
+
+function addJournalEntry() {
+  const pair = document.getElementById('jPair').value;
+  if (!pair) { toast('Enter a pair first'); return; }
+  const score = parseInt(document.getElementById('jScore').value) || 0;
+  const entry = {
+    id: Date.now(), pair: pair.toUpperCase(), dir: '—', score,
+    grade: score>=80?'Strong':score>=60?'Good':score>=40?'Average':'Weak',
+    outcome: S.jOutcome, notes: document.getElementById('jNotes').value,
+    rr: document.getElementById('jRR').value || '—',
+    date: new Date().toISOString(), scores: {},
+  };
+  S.trades.unshift(entry);
+  localStorage.setItem('pt_trades_v2', JSON.stringify(S.trades));
+  document.getElementById('jPair').value = '';
+  document.getElementById('jScore').value = '';
+  document.getElementById('jRR').value = '';
+  document.getElementById('jNotes').value = '';
+  document.querySelectorAll('.outcome-btn').forEach(b => b.classList.remove('active'));
+  S.jOutcome = null;
+  renderJournal();
+  toast('Entry added');
+}
+
+function renderJournal() {
+  const list = document.getElementById('journalList');
+  if (!S.trades.length) { list.innerHTML = '<div class="empty-state">No journal entries yet.<br>Save trades or add manually above.</div>'; return; }
+  list.innerHTML = S.trades.map(t => {
+    const d = new Date(t.date).toLocaleDateString('en-GB', {day:'2-digit', month:'short', year:'2-digit'});
+    const oc = t.outcome || 'Pending';
+    const ocClass = oc==='WIN'?'win':oc==='LOSS'?'loss':'be';
+    const ocColor = oc==='WIN'?'var(--accent)':oc==='LOSS'?'var(--red)':'var(--yellow)';
+    const sc = t.score>=70?'var(--accent)':t.score>=50?'var(--yellow)':'var(--red)';
+    return `<div class="journal-entry ${ocClass}">
+      <div class="j-top"><div class="j-pair">${t.pair}</div><div class="j-outcome" style="color:${ocColor}">${oc}</div></div>
+      <div class="j-stats">
+        <div><div class="j-stat-label">Dir</div><div class="j-stat-val ${t.dir==='LONG'?'t-long':'t-short'}">${t.dir}</div></div>
+        <div><div class="j-stat-label">Score</div><div class="j-stat-val" style="color:${sc}">${t.score}%</div></div>
+        <div><div class="j-stat-label">R:R</div><div class="j-stat-val">${t.rr||'—'}</div></div>
+        <div><div class="j-stat-label">Date</div><div class="j-stat-val j-date">${d}</div></div>
+      </div>
+      ${t.notes ? `<div class="j-note">${t.notes}</div>` : ''}
+    </div>`;
+  }).join('');
+}
+
+// ═══════════════════════════ TOAST ═══════════════════════════
+let toastTimer;
+function toast(msg) {
+  const el = document.getElementById('toast');
+  el.textContent = msg; el.classList.add('show');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => el.classList.remove('show'), 2200);
+}
+
+// ═══════════════════════════ PWA INSTALL ═══════════════════════════
+let deferredPrompt;
+window.addEventListener('beforeinstallprompt', e => {
+  e.preventDefault(); deferredPrompt = e;
+  setTimeout(() => document.getElementById('installBanner').classList.add('show'), 2000);
+});
+document.getElementById('installBtn').addEventListener('click', async () => {
+  if (!deferredPrompt) return;
+  deferredPrompt.prompt();
+  const { outcome } = await deferredPrompt.userChoice;
+  deferredPrompt = null;
+  document.getElementById('installBanner').classList.remove('show');
+  if (outcome === 'accepted') toast('App installed!');
+});
+window.addEventListener('appinstalled', () => {
+  document.getElementById('installBanner').classList.remove('show');
+  toast('✓ Perfect Trade installed!');
+});
+
+// ═══════════════════════════ SERVICE WORKER ═══════════════════════════
+if ('serviceWorker' in navigator) {
+  navigator.serviceWorker.register('./sw.js').catch(console.warn);
+}
+
+// Init
+renderCal();
+renderJournal();
+renderDash();
+</script>
+</body>
+</html>
